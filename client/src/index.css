@@ -1,0 +1,374 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* @layer base {
+  html {
+    scroll-behavior: smooth;
+  } */
+
+  body {
+    @apply font-sans antialiased bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* * {
+    @apply border-border;
+  } */
+
+
+@layer components {
+  .glass-effect {
+    @apply bg-white border border-gray-200 shadow-glass dark:bg-slate-800 dark:border-slate-600 transition-colors duration-300;
+  }
+
+  .glass-card {
+    @apply bg-white border border-gray-200 shadow-glass rounded-xl dark:bg-slate-800 dark:border-slate-600 transition-colors duration-300;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-purple-blue {
+    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500/50 hover:from-purple-700 hover:to-blue-700;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white/10 backdrop-blur-md text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-white/25;
+  }
+
+  .input-glass {
+    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 placeholder-gray-500 dark:bg-slate-700 dark:border-slate-500 dark:text-slate-100 dark:placeholder-slate-400;
+  }
+
+  .btn-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:scale-105;
+  }
+
+  .btn-signout {
+    @apply transition-all duration-300 hover:bg-red-50 hover:border-red-300 hover:text-red-600 hover:shadow-lg hover:shadow-red-500/25 hover:scale-105;
+  }
+
+  .sidebar-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 dark:text-slate-200 dark:hover:text-purple-300 dark:hover:bg-purple-500/10 transition-all duration-200 cursor-pointer;
+  }
+
+  .sidebar-item.active {
+    @apply text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10;
+  }
+
+  /* Dark mode specific styles */
+  .dark .sidebar-item {
+    @apply text-slate-200 hover:text-purple-300 hover:bg-purple-500/10;
+  }
+
+  .dark .sidebar-item.active {
+    @apply text-purple-300 bg-purple-500/10;
+  }
+
+  .task-card {
+    @apply p-4 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer dark:bg-slate-800 dark:border-slate-600;
+  }
+
+  .dark .task-card {
+    @apply bg-slate-800 border-slate-600 hover:bg-slate-700/50;
+  }
+
+  /* Additional dark mode styles */
+  .dark .glass-card {
+    @apply bg-slate-800 border-slate-600;
+  }
+
+  .dark .glass-effect {
+    @apply bg-slate-800 border-slate-600;
+  }
+
+  /* Ensure dark mode is visible */
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark * {
+    border-color: rgb(71 85 105); /* slate-600 */
+  }
+
+  /* Enhanced dark mode text contrast */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    @apply text-slate-100;
+  }
+
+  .dark p, .dark span, .dark div {
+    @apply text-slate-200;
+  }
+
+  .dark .text-gray-600 {
+    @apply text-slate-300;
+  }
+
+  .dark .text-gray-500 {
+    @apply text-slate-400;
+  }
+
+  .dark .text-gray-400 {
+    @apply text-slate-500;
+  }
+
+  /* Better dark mode button styles */
+  .dark .btn-primary {
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700;
+  }
+
+  .dark .btn-outline {
+    @apply border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-slate-900;
+  }
+
+  /* Dark mode specific improvements */
+  .dark .glass-card {
+    @apply shadow-2xl shadow-black/20;
+  }
+
+  .dark .sidebar-item:hover {
+    @apply bg-slate-700/50;
+  }
+
+  .dark .sidebar-item.active {
+    @apply bg-slate-700/50;
+  }
+
+  /* Better dark mode gradients */
+  .dark .gradient-text {
+    @apply bg-gradient-to-r from-purple-400 to-blue-400;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-todo {
+    @apply bg-gray-100 text-gray-800;
+  }
+
+  .status-in-progress {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .status-review {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .status-completed {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .priority-low {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .priority-medium {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .priority-high {
+    @apply bg-orange-100 text-orange-800;
+  }
+
+  .priority-urgent {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 8s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  border: 3px solid rgba(99, 102, 241, 0.1);
+  border-left: 3px solid #6366f1;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5), 0 0 10px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 30px rgba(139, 92, 246, 0.5);
+  }
+}
+
+@keyframes wave {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+  }
+  20% {
+    transform: scaleY(1.0);
+  }
+}
+
+/* Modern loader utilities */
+.loader-wave {
+  animation: wave 1.2s infinite ease-in-out;
+}
+
+.loader-wave:nth-child(2) {
+  animation-delay: -1.1s;
+}
+
+.loader-wave:nth-child(3) {
+  animation-delay: -1.0s;
+}
+
+.loader-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, input, textarea, select {
+  @apply transition-all duration-200;
+}
+
+/* Focus styles */
+input:focus, textarea:focus, select:focus, button:focus {
+  @apply outline-none;
+}
+
+/* Improve text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Task status badges - dark mode */
+.dark .status-todo {
+  @apply bg-slate-700 text-slate-300;
+}
+
+.dark .status-in-progress {
+  @apply bg-blue-900/50 text-blue-300;
+}
+
+.dark .status-review {
+  @apply bg-yellow-900/50 text-yellow-300;
+}
+
+.dark .status-completed {
+  @apply bg-green-900/50 text-green-300;
+}
+
+/* Priority badges - dark mode */
+.dark .priority-low {
+  @apply bg-green-900/50 text-green-300;
+}
+
+.dark .priority-medium {
+  @apply bg-yellow-900/50 text-yellow-300;
+}
+
+.dark .priority-high {
+  @apply bg-orange-900/50 text-orange-300;
+}
+
+.dark .priority-urgent {
+  @apply bg-red-900/50 text-red-300;
+}
+
