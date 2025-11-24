@@ -16,7 +16,7 @@ const createProject = async (req, res) => {
       dueDate,
     } = req.body;
 
-    // Verify team exists and user is a member
+
     const team = await Team.findById(teamId);
     if (!team) {
       return res.status(404).json({
@@ -46,7 +46,6 @@ const createProject = async (req, res) => {
 
     await project.save();
 
-    // Add project to team
     team.projects.push(project._id);
     await team.save();
 
@@ -143,8 +142,6 @@ const getProjectById = async (req, res) => {
       });
     }
 
-
-    // Check access properly
     const canAccess =
       project.owner._id.toString() === req.user._id.toString() ||
       project.collaborators.some(
@@ -192,7 +189,6 @@ const updateProject = async (req, res) => {
       });
     }
 
-    // Check if user is owner or collaborator
     if (
       project.owner.toString() !== req.user._id.toString() &&
       !project.collaborators.includes(req.user._id)
@@ -258,7 +254,6 @@ const addMember = async (req, res) => {
       });
     }
 
-    // Check if user is owner
     if (project.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -266,7 +261,7 @@ const addMember = async (req, res) => {
       });
     }
 
-    // Check if user is already a collaborator
+
     if (project.collaborators.includes(userId)) {
       return res.status(400).json({
         success: false,
@@ -308,7 +303,7 @@ const showcaseProject = async (req, res) => {
       });
     }
 
-    // Check if user is owner
+
     if (project.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -352,7 +347,6 @@ const deleteProject = async (req, res) => {
       });
     }
 
-    // Check if user is project owner
     if (project.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -360,11 +354,10 @@ const deleteProject = async (req, res) => {
       });
     }
 
-    // Delete all tasks associated with the project
     const Task = (await import("../models/Task.js")).default;
     await Task.deleteMany({ project: project._id });
 
-    // Remove project from team's projects array
+    
     if (project.team) {
       const Team = (await import("../models/Team.js")).default;
       await Team.findByIdAndUpdate(project.team._id, {
@@ -372,7 +365,6 @@ const deleteProject = async (req, res) => {
       });
     }
 
-    // Delete the project
     await Project.findByIdAndDelete(req.params.id);
 
     res.json({

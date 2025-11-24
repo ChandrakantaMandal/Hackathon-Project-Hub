@@ -16,12 +16,11 @@ const getShowcase = async (req, res) => {
     let query = { "showcase.isPublic": true };
     let sortOptions = {};
 
-    // Category filter
     if (category && category !== "all") {
       query.category = category;
     }
 
-    // Search filter
+    
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -30,7 +29,7 @@ const getShowcase = async (req, res) => {
       ];
     }
 
-    // Sort options
+ 
     switch (sort) {
       case "popular":
         sortOptions = { "showcase.likes": -1, "showcase.views": -1 };
@@ -48,10 +47,11 @@ const getShowcase = async (req, res) => {
       .populate("owner", "name email avatar")
       .populate("collaborators", "name email avatar")
       .populate("team", "name")
-      .select("-tasks -showcase.comments") // Exclude heavy data
+      .select("-tasks -showcase.comments") 
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit)
+      .lean() 
       .exec();
 
     const total = await Project.countDocuments(query);
@@ -108,7 +108,6 @@ const getShowcaseProject = async (req, res) => {
       });
     }
 
-    // Increment view count (only once per user session)
     if (
       !req.user ||
       !project.collaborators.some(
@@ -119,7 +118,7 @@ const getShowcaseProject = async (req, res) => {
       await project.save();
     }
 
-    // Add user like status if authenticated
+  
     if (req.user) {
       project.userLiked = project.showcase.likes.some(
         (like) => like.user._id.toString() === req.user._id.toString()
@@ -162,12 +161,10 @@ const likeShowcaseProject = async (req, res) => {
     );
 
     if (existingLike) {
-      // Unlike
       project.showcase.likes = project.showcase.likes.filter(
         (like) => like.user.toString() !== req.user._id.toString()
       );
     } else {
-      // Like
       project.showcase.likes.push({ user: req.user._id });
     }
 

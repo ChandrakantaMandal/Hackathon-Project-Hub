@@ -99,14 +99,13 @@ const TeamPage = () => {
     }
   };
 
-  // Check if current user can manage members
+  
   const canManageMembers = () => {
     if (!team || !user) return false;
     const member = team.members.find(m => m.user._id === user._id);
     return member && ['owner', 'admin'].includes(member.role);
   };
-
-  // Add this helper function to check if user can manage team settings
+  
   const canManageTeam = () => {
     if (!team || !user) return false;
     const userMember = team.members?.find(m => m.user._id === user._id);

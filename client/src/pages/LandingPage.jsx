@@ -88,7 +88,7 @@ const LandingPage = () => {
             <Link to="/judge/login" className="text-white/90 hover:text-white underline-offset-4 hover:underline transition-colors">
               Join as Judge
             </Link>
-            <Link to="/auth">
+            <Link to="/signup">
               <Button variant="secondary" size="small">
                 Sign In
               </Button>
@@ -99,8 +99,7 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center gradient-purple-blue overflow-hidden pt-24">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
+     <div className="absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute -top-4 -left-4 w-72 h-72 bg-white/10 rounded-full blur-3xl"
             animate={{
@@ -119,6 +118,7 @@ const LandingPage = () => {
               x: [0, -150, 0],
               y: [0, 100, 0],
             }}
+       
             transition={{
               duration: 25,
               repeat: Infinity,
@@ -155,7 +155,7 @@ const LandingPage = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
-              <Link to="/auth">
+              <Link to="/signup">
                 <Button size="large" className="text-lg px-8 py-4 shadow-2xl">
                   Get Started Free
                   <RocketLaunchIcon className="w-5 h-5 ml-2" />
@@ -247,7 +247,7 @@ const LandingPage = () => {
               Join thousands of developers and creators who are using HackHub 
               to collaborate and showcase their projects.
             </p>
-            <Link to="/auth">
+            <Link to="/signup">
               <Button 
                 size="large" 
                 variant="secondary"

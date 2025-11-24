@@ -16,7 +16,7 @@ const createTask = async (req, res) => {
       estimatedHours,
     } = req.body;
 
-    // Verify project exists and user has access
+    
     const projectDoc = await Project.findById(project);
     if (!projectDoc) {
       return res.status(404).json({
@@ -45,7 +45,6 @@ const createTask = async (req, res) => {
 
     await task.save();
 
-    // Add task to project
     projectDoc.tasks.push(task._id);
     await projectDoc.save();
 
@@ -80,7 +79,6 @@ const getTask = async (req, res) => {
     let query = {};
 
     if (projectId) {
-      // Verify project access
       const project = await Project.findById(projectId);
       if (!project || !project.canAccess(req.user._id)) {
         return res.status(403).json({
@@ -90,7 +88,6 @@ const getTask = async (req, res) => {
       }
       query.project = projectId;
     } else {
-      // Get user's projects
       const userProjects = await Project.find({
         $or: [{ owner: req.user._id }, { collaborators: req.user._id }],
       }).select("_id");
@@ -157,7 +154,6 @@ const getTaskById = async (req, res) => {
       });
     }
 
-    // Check if user has access to the project
     if (!task.project.canAccess(req.user._id)) {
       return res.status(403).json({
         success: false,
@@ -203,7 +199,7 @@ const updateTask = async (req, res) => {
       });
     }
 
-    // Check if user has access to the project
+  
     if (!task.project.canAccess(req.user._id)) {
       return res.status(403).json({
         success: false,
@@ -284,7 +280,6 @@ const addCommentTask = async (req, res) => {
       });
     }
 
-    // Check if user has access to the project
     if (!task.project.canAccess(req.user._id)) {
       return res.status(403).json({
         success: false,
@@ -342,7 +337,6 @@ const deleteTask = async (req, res) => {
       });
     }
 
-    // Check if user is task creator or project owner
     if (
       task.createdBy.toString() !== req.user._id.toString() &&
       task.project.owner.toString() !== req.user._id.toString()

@@ -14,7 +14,6 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated, teams }) => {
     try {
       setLoading(true);
       
-      // Format tags
       const formattedData = {
         ...data,
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : []

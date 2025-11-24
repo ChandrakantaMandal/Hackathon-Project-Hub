@@ -1,22 +1,29 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { UsersIcon, FolderIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { formatDate } from '../../utils/helpers';
-import { useAppStore } from '../../store/useAppStore';
+import React, { memo, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { UsersIcon, FolderIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "../../utils/helpers";
+import { useAppStore } from "../../store/useAppStore";
 
-const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
+const TeamCard = memo(({ team, onDelete, showMembershipStatus = false }) => {
   const { user } = useAppStore();
-  
-  const isOwner = team.owner?._id === user?._id || team.owner === user?._id;
 
-  const handleDeleteClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onDelete) {
-      onDelete(team._id);
-    }
-  };
+
+  const isOwner = useMemo(
+    () => team.owner?._id === user?._id || team.owner === user?._id,
+    [team.owner, user?._id]
+  );
+
+  const handleDeleteClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onDelete) {
+        onDelete(team._id);
+      }
+    },
+    [onDelete, team._id]
+  );
 
   return (
     <motion.div
@@ -24,7 +31,6 @@ const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
       transition={{ duration: 0.2 }}
       className="glass-card p-6 hover:shadow-lg transition-all duration-300 relative"
     >
-      {/* Delete button - only show for team owner */}
       {isOwner && onDelete && (
         <button
           onClick={handleDeleteClick}
@@ -34,8 +40,6 @@ const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
           <TrashIcon className="w-4 h-4" />
         </button>
       )}
-
-      {/* Membership Status Badge */}
       {showMembershipStatus && (
         <div className="mb-3">
           {team.isMember ? (
@@ -49,7 +53,7 @@ const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
           )}
         </div>
       )}
-      
+
       <Link to={`/dashboard/team/${team._id}`} className="block">
         <div className="flex items-start justify-between mb-4 pr-8">
           <div className="flex-1">
@@ -90,8 +94,14 @@ const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
             {team.members.slice(0, 3).map((member, index) => (
               <img
                 key={member._id || index}
-                src={member.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.user?.name || 'User')}&background=8B5CF6&color=ffffff&size=128&bold=true`}
-                alt={member.user?.name || 'Team member'}
+                src={
+                  member.user?.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    member.user?.name || "User"
+                  )}&background=8B5CF6&color=ffffff&size=128&bold=true`
+                }
+                alt={member.user?.name || "Team member"}
+                loading="lazy"
                 className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800"
               />
             ))}
@@ -107,8 +117,8 @@ const TeamCard = ({ team, onDelete, showMembershipStatus = false }) => {
       </Link>
     </motion.div>
   );
-};
+});
+
+TeamCard.displayName = "TeamCard";
 
 export default TeamCard;
-
-

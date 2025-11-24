@@ -11,7 +11,6 @@ const register = async (req, res) => {
   try {
     const { name, email, password, judgeCode, specialization } = req.body;
 
-    // Check if judge already exists
     const existingJudge = await Judge.findOne({ email });
     if (existingJudge) {
       return res.status(400).json({
@@ -20,7 +19,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Verify judge code (you can set valid codes in environment or database)
     const validJudgeCodes = process.env.JUDGE_CODES?.split(",") || [
       "JUDGE2024",
       "HACKJUDGE",
@@ -197,13 +195,12 @@ const scoreSubmission = async (req, res) => {
       });
     }
 
-    // Check if judge already scored this submission
+  
     const existingScore = submission.scores.find(
       (score) => score.judge.toString() === req.judge._id.toString()
     );
 
     if (existingScore) {
-      // Update existing score
       existingScore.innovation = innovation;
       existingScore.technical = technical;
       existingScore.design = design;
@@ -212,7 +209,6 @@ const scoreSubmission = async (req, res) => {
       existingScore.feedback = feedback;
       existingScore.scoredAt = new Date();
     } else {
-      // Add new score
       submission.scores.push({
         judge: req.judge._id,
         innovation,
@@ -224,15 +220,13 @@ const scoreSubmission = async (req, res) => {
       });
     }
 
-    // Move submission through statuses based on scoring progress
+  
     if (submission.status === 'submitted') {
       submission.status = 'under-review';
     }
 
-    // Calculate final score so far
+    
     submission.calculateFinalScore();
-
-    // If all active judges have submitted a score, mark as reviewed
     try {
       const totalJudges = await (await import('../models/Judge.js')).default.countDocuments({ isActive: true });
       const uniqueJudgeScores = new Set(submission.scores.map(s => s.judge.toString())).size;
@@ -240,7 +234,7 @@ const scoreSubmission = async (req, res) => {
         submission.status = 'reviewed';
       }
     } catch (_) {
-      // If judge model isn't available for some reason, continue without blocking
+      
     }
 
     await submission.save();
@@ -274,7 +268,6 @@ const awardBadge = async (req, res) => {
       });
     }
 
-    // Check if badge type already awarded
     const existingBadge = submission.badges.find(
       (badge) => badge.type === type
     );

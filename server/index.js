@@ -1,64 +1,68 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
+import compression from "compression";
 
 // Import routes
-import authRoutes from './routes/auth.js';
-import teamRoutes from './routes/teams.js';
-import projectRoutes from './routes/projects.js';
-import taskRoutes from './routes/tasks.js';
+import authRoutes from "./routes/auth.js";
+import teamRoutes from "./routes/teams.js";
+import projectRoutes from "./routes/projects.js";
+import taskRoutes from "./routes/tasks.js";
 
-import showcaseRoutes from './routes/showcase.js';
-import judgeRoutes from './routes/judge.js';
-import submissionRoutes from './routes/submissions.js';
-
+import showcaseRoutes from "./routes/showcase.js";
+import judgeRoutes from "./routes/judge.js";
+import submissionRoutes from "./routes/submissions.js";
 
 dotenv.config();
 
-// Provide safe defaults for local development if env vars are missing
+
 if (!process.env.JWT_SECRET) {
-  process.env.JWT_SECRET = 'dev_secret_change_me';
+  process.env.JWT_SECRET = "dev_secret_change_me";
 }
-// Allow multiple dev origins (Vite may choose different ports) and support comma-separated env
-const DEV_ORIGINS = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+
+const DEV_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+];
 const CORS_ORIGINS = (() => {
   if (process.env.CORS_ORIGINS) {
-    return process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean);
+    return process.env.CORS_ORIGINS.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   if (process.env.CORS_ORIGIN) {
     return [process.env.CORS_ORIGIN];
   }
-  return process.env.NODE_ENV === 'production'
-    ? ['https://your-frontend-domain.com']
+  return process.env.NODE_ENV === "production"
+    ? ["https://your-frontend-domain.com"]
     : DEV_ORIGINS;
 })();
 
 const app = express();
 
-// Security middleware
 app.use(helmet());
 
-// CORS (must be before rate limiting and routes)
 const corsOptions = {
   origin: CORS_ORIGINS,
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options("*", cors(corsOptions));
 
-// Rate limiting - more lenient for development
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // More requests allowed in development
+  windowMs: 15 * 60 * 1000, 
+  max: process.env.NODE_ENV === "production" ? 100 : 1000, 
   message: {
     success: false,
-    message: 'Too many requests, please try again later'
+    message: "Too many requests, please try again later",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -66,86 +70,94 @@ const limiter = rateLimit({
     console.log(`⚠️ Rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
       success: false,
-      message: 'Too many requests, please try again later',
-      retryAfter: Math.round(limiter.windowMs / 1000)
+      message: "Too many requests, please try again later",
+      retryAfter: Math.round(limiter.windowMs / 1000),
     });
-  }
+  },
 });
 
-// Apply rate limiting to all API routes except auth in development
-if (process.env.NODE_ENV === 'production') {
-  app.use('/api/', limiter);
+if (process.env.NODE_ENV === "production") {
+  app.use("/api/", limiter);
 } else {
-  // In development, apply rate limiting to all routes except auth
-  app.use('/api/teams', limiter);
-  app.use('/api/projects', limiter);
-  app.use('/api/tasks', limiter);
-  app.use('/api/chat', limiter);
-  app.use('/api/showcase', limiter);
-  
-  // More lenient rate limiting for auth routes in development
+  app.use("/api/teams", limiter);
+  app.use("/api/projects", limiter);
+  app.use("/api/tasks", limiter);
+  app.use("/api/chat", limiter);
+  app.use("/api/showcase", limiter);
+
   const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // Allow more auth attempts in development
+    windowMs: 15 * 60 * 1000, 
+    max: 50,
     message: {
       success: false,
-      message: 'Too many login attempts, please try again later'
+      message: "Too many login attempts, please try again later",
     },
     handler: (req, res) => {
       console.log(`⚠️ Auth rate limit exceeded for IP: ${req.ip}`);
       res.status(429).json({
         success: false,
-        message: 'Too many login attempts, please try again later',
-        retryAfter: Math.round(15 * 60) // 15 minutes in seconds
+        message: "Too many login attempts, please try again later",
+        retryAfter: Math.round(15 * 60), 
       });
-    }
+    },
   });
-  app.use('/api/auth', authLimiter);
+  app.use("/api/auth", authLimiter);
 }
 
-// Body parsing middleware
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(
+  compression({
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    level: 6, 
+  })
+);
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hackathon-hub')
-  .then(() => console.log('🚀 Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
-
+mongoose
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/hackathon-hub")
+  .then(() => console.log("🚀 Connected to MongoDB"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/teams', teamRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/showcase', showcaseRoutes);
-app.use('/api/judge', judgeRoutes);
-app.use('/api/submissions', submissionRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/teams", teamRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/showcase", showcaseRoutes);
+app.use("/api/judge", judgeRoutes);
+app.use("/api/submissions", submissionRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running!' });
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running!" });
 });
 
-// Development endpoint to reset rate limits
-if (process.env.NODE_ENV !== 'production') {
-  app.post('/api/reset-rate-limit', (req, res) => {
-    // This is a simple way to reset rate limits by restarting the limiter
-    res.json({ 
-      status: 'OK', 
-      message: 'Rate limit reset - restart server to apply changes',
-      note: 'This endpoint is only available in development'
+
+if (process.env.NODE_ENV !== "production") {
+  app.post("/api/reset-rate-limit", (req, res) => {
+    res.json({
+      status: "OK",
+      message: "Rate limit reset - restart server to apply changes",
+      note: "This endpoint is only available in development",
     });
   });
 }
 
 // Error handling middleware
 app.use((error, req, res, next) => {
-  console.error('❌ Error:', error);
+  console.error("❌ Error:", error);
   res.status(error.status || 500).json({
     success: false,
-    message: error.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    message: error.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
   });
 });
 
@@ -154,7 +166,3 @@ app.listen(PORT, () => {
   console.log(`🎉 Server running on port ${PORT}`);
   console.log(`🔗 API available at http://localhost:${PORT}/api`);
 });
-
-
-
-

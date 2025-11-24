@@ -2,8 +2,8 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import api from '../../utils/api';
 import { toast } from 'react-hot-toast';
-import Modal from '../common/Modal';
-import Button from '../common/Button';
+import Modal from './Modal';
+import Button from './Button';
 
 const CreateTaskModal = ({ isOpen, onClose, projectId, members, onTaskCreated }) => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -25,7 +25,7 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onTaskCreated })
         estimatedHours: data.estimatedHours ? parseFloat(data.estimatedHours) : 0
       };
 
-      // Remove null/empty values that might cause validation issues
+      
       Object.keys(taskData).forEach(key => {
         if (taskData[key] === null || taskData[key] === '') {
           delete taskData[key];

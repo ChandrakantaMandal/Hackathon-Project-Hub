@@ -12,7 +12,6 @@ const UserSelector = ({ teamId, onUserAdded, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(null);
 
-  // Debounced search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchQuery.trim().length >= 2) {

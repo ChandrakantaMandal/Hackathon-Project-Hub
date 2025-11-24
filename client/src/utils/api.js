@@ -8,7 +8,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token') || localStorage.getItem('judgeToken');
@@ -22,12 +21,12 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Only redirect on 401 (unauthenticated). Also clear Zustand user to avoid redirect loops
+      
       try {
         const { useAppStore } = await import('../store/useAppStore');
         if (useAppStore?.getState) {

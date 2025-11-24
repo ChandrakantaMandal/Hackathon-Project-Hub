@@ -18,10 +18,10 @@ const ProjectPage = () => {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState(null);
   const [showCreateTask, setShowCreateTask] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(null); // { type, id, title }
+  const [confirmDelete, setConfirmDelete] = useState(null); 
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
 
-  // Check if current user is project owner
+
   const isProjectOwner = () => {
     if (!project || !user) return false;
     return (
@@ -30,15 +30,14 @@ const ProjectPage = () => {
     );
   };
 
-  // Filter tasks based on user role
+ 
   const getFilteredTasks = () => {
     if (!project?.tasks) return [];
     
     if (isProjectOwner()) {
-      // Owner sees all tasks
+    
       return project.tasks;
     } else {
-      // Non-owners see only tasks assigned to them
       return project.tasks.filter(task => 
         task.assignedTo?._id === user?._id
       );
@@ -73,7 +72,6 @@ const ProjectPage = () => {
     }
   }, [projectId]);
 
-  // Realtime socket removed
 
   if (loading) {
     return (
@@ -129,7 +127,6 @@ const ProjectPage = () => {
     toast.success('Task created successfully! ✨');
   };
 
-  // Add this function to handle task status toggle
   const handleTaskStatusToggle = async (taskId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'completed' ? 'todo' : 'completed';
@@ -139,7 +136,6 @@ const ProjectPage = () => {
       });
 
       if (response.data.success) {
-        // Update the task in the project state
         setProject(prev => ({
           ...prev,
           tasks: prev.tasks.map(task => 
@@ -149,7 +145,6 @@ const ProjectPage = () => {
           )
         }));
         
-        // Update progress after task status change
         await fetchProject();
         
         toast.success(`Task marked as ${newStatus === 'completed' ? 'completed ✅' : 'incomplete 📝'}`);
@@ -164,7 +159,6 @@ const ProjectPage = () => {
     }
   };
 
-  // Add this function to handle task deletion
   const handleDeleteTask = (taskId) => {
     const task = project.tasks.find(t => t._id === taskId);
     setConfirmDelete({
@@ -181,7 +175,6 @@ const ProjectPage = () => {
       const response = await api.delete(`/tasks/${confirmDelete.id}`);
 
       if (response.data.success) {
-        // Remove the task from the project state
         setProject(prev => ({
           ...prev,
           tasks: prev.tasks.filter(task => task._id !== confirmDelete.id)
@@ -201,12 +194,10 @@ const ProjectPage = () => {
     }
   };
 
-  // Check if user can delete a task (task creator or project owner)
   const canDeleteTask = (task) => {
     return task.createdBy?._id === user?._id || isProjectOwner();
   };
 
-  // Build a combined member list: owner + collaborators + team members (unique)
   const getAllMembersList = () => {
     const result = [];
     const seen = new Set();
@@ -310,7 +301,6 @@ const ProjectPage = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          {/* Checkbox for assigned users to mark completion */}
                           {!isProjectOwner() && task.assignedTo?._id === user?._id && (
                             <input
                               type="checkbox"
@@ -358,7 +348,7 @@ const ProjectPage = () => {
                             </p>
                           )}
                         </div>
-                        {/* Delete button - only show for task creator or project owner */}
+                        
                         {canDeleteTask(task) && (
                           <button
                             onClick={() => handleDeleteTask(task._id)}

@@ -22,12 +22,11 @@ const createTeam = async (req, res) => {
 
     await team.save();
 
-    // Add team to user's teams array
     await User.findByIdAndUpdate(req.user._id, {
       $addToSet: { teams: team._id },
     });
 
-    // Populate the team data before sending response
+  
     await team.populate([
       { path: "members.user", select: "name email avatar" },
       { path: "owner", select: "name email avatar" },
@@ -90,7 +89,6 @@ const searchUsers = async (req, res) => {
       });
     }
 
-    // Get team members to exclude them from search
     let excludeUsers = [];
     if (teamId) {
       const team = await Team.findById(teamId).select("members.user");
@@ -99,10 +97,9 @@ const searchUsers = async (req, res) => {
       }
     }
 
-    // Search for users by name or email
     const searchQuery = {
       $and: [
-        { _id: { $nin: excludeUsers } }, // Exclude current team members
+        { _id: { $nin: excludeUsers } }, 
         {
           $or: [
             { name: { $regex: q, $options: "i" } },
@@ -147,8 +144,6 @@ const getTeamById = async (req, res) => {
       });
     }
 
-
-    // Check if user is a member
     const isMember = team.isMember(req.user._id);
 
     if (!isMember) {
@@ -158,7 +153,6 @@ const getTeamById = async (req, res) => {
       });
     }
 
-    // Calculate stats
     const stats = {
       totalProjects: team.projects.length,
       completedProjects: team.projects.filter((p) => p.status === "completed")
@@ -205,7 +199,6 @@ const joinTeam = async (req, res) => {
       });
     }
 
-    // Check if user is already a member
     if (team.isMember(req.user._id)) {
       return res.status(400).json({
         success: false,
@@ -213,14 +206,12 @@ const joinTeam = async (req, res) => {
       });
     }
 
-    // Add user to team
+
     team.members.push({
       user: req.user._id,
       role: "member",
     });
     await team.save();
-
-    // Add team to user's teams array
     await User.findByIdAndUpdate(req.user._id, {
       $push: { teams: team._id },
     });
@@ -256,7 +247,7 @@ const updateTeam = async (req, res) => {
       });
     }
 
-    // Check if user has permission to update (owner or admin)
+ 
     const userRole = team.getMemberRole(req.user._id);
     if (!userRole || !["owner", "admin"].includes(userRole)) {
       return res.status(403).json({
@@ -303,7 +294,6 @@ const regenerateInviteCode = async (req, res) => {
       });
     }
 
-    // Check if user is owner or admin
     const userRole = team.getMemberRole(req.user._id);
     if (!userRole || !["owner", "admin"].includes(userRole)) {
       return res.status(403).json({
@@ -344,8 +334,6 @@ const addMember = async (req, res) => {
         message: "Team not found",
       });
     }
-
-    // Check if user is owner or admin
     const userRole = team.getMemberRole(req.user._id);
 
     if (!userRole || !["owner", "admin"].includes(userRole)) {
@@ -355,7 +343,6 @@ const addMember = async (req, res) => {
       });
     }
 
-    // Check if user exists
     const userToAdd = await User.findById(userId);
     if (!userToAdd) {
       return res.status(404).json({
@@ -364,7 +351,6 @@ const addMember = async (req, res) => {
       });
     }
 
-    // Check if user is already a member
     if (team.isMember(userId)) {
       return res.status(400).json({
         success: false,
@@ -372,14 +358,13 @@ const addMember = async (req, res) => {
       });
     }
 
-    // Add user to team
     team.members.push({
       user: userId,
       role: role,
     });
     await team.save();
 
-    // Add team to user's teams array
+
     await User.findByIdAndUpdate(userId, {
       $push: { teams: team._id },
     });
@@ -416,7 +401,7 @@ const removeMember = async (req, res) => {
       });
     }
 
-    // Check if user is owner or admin
+
     const userRole = team.getMemberRole(req.user._id);
     if (!userRole || !["owner", "admin"].includes(userRole)) {
       return res.status(403).json({
@@ -425,7 +410,6 @@ const removeMember = async (req, res) => {
       });
     }
 
-    // Check if user is trying to remove themselves
     if (userId === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
@@ -486,7 +470,7 @@ const deleteTeam = async (req, res) => {
       });
     }
 
-    // Check if user is team owner
+    
     if (team.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -494,7 +478,6 @@ const deleteTeam = async (req, res) => {
       });
     }
 
-    // Check if team has projects
     if (team.projects && team.projects.length > 0) {
       return res.status(400).json({
         success: false,
@@ -503,7 +486,6 @@ const deleteTeam = async (req, res) => {
       });
     }
 
-    // Remove team from all members' teams array
     const memberIds = team.members.map(
       (member) => member.user._id || member.user
     );
@@ -512,7 +494,6 @@ const deleteTeam = async (req, res) => {
       { $pull: { teams: team._id } }
     );
 
-    // Delete the team
     await Team.findByIdAndDelete(req.params.id);
 
     res.json({
@@ -557,7 +538,6 @@ const searchAllTeams = async (req, res) => {
       .limit(20)
       .sort({ createdAt: -1 });
 
-    // Add membership status for current user
     const teamsWithMembership = teams.map((team) => ({
       ...team.toObject(),
       isMember: team.isMember(req.user._id),

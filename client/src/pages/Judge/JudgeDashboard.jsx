@@ -13,9 +13,9 @@ import {
   UserGroupIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
-import api from '../utils/api';
-import Button from '../components/common/Button';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import api from '../../utils/api';
+import Button from '../../components/common/Button';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 
