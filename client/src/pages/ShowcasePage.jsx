@@ -43,7 +43,6 @@ const ShowcasePage = () => {
     }
   }, [projectId, searchTerm, selectedCategory, sortBy, pagination.current]);
 
-  // Always fetch leaderboard once on mount so winners section persists across refresh
   useEffect(() => {
     fetchLeaderboard();
   }, []);
@@ -195,8 +194,6 @@ const ShowcasePage = () => {
       </div>
     );
   }
-
-  // Single project view
   if (projectId && selectedProject) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -228,7 +225,7 @@ const ShowcasePage = () => {
                 const next = !showLeaderboard;
                 setShowLeaderboard(next);
                 if (next) {
-                  // Load leaderboard on demand
+                  
                   fetchLeaderboard();
                 }
               }}
@@ -238,7 +235,7 @@ const ShowcasePage = () => {
           </div>
         </div>
 
-        {/* Winners Section (only when not viewing full leaderboard) */}
+        {/* Winners Section */}
         {leaderboard.length > 0 && !showLeaderboard && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">🏆 Hackathon Winners</h2>
@@ -298,7 +295,7 @@ const ShowcasePage = () => {
           </div>
         )}
 
-        {/* Search and Filters (hidden when leaderboard is shown) */}
+        {/* Search and Filters */}
         {!showLeaderboard && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -345,7 +342,7 @@ const ShowcasePage = () => {
         </motion.div>
         )}
 
-        {/* Projects Grid (hidden when leaderboard is shown) */}
+        {/* Projects */}
         {!showLeaderboard && (projects.length > 0 ? (
           <motion.div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -382,7 +379,7 @@ const ShowcasePage = () => {
           </motion.div>
         ))}
 
-        {/* Pagination (hidden when leaderboard is shown) */}
+        {/* Pagination */}
         {!showLeaderboard && pagination.pages > 1 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -427,7 +424,6 @@ const ShowcasePage = () => {
   );
 };
 
-// ✅ Fixed Project Card
 const ProjectCard = ({ project, onLike, onClick, user, index }) => {
   return (
     <motion.div
@@ -498,7 +494,7 @@ const ProjectCard = ({ project, onLike, onClick, user, index }) => {
   );
 };
 
-// ✅ Fixed Project Detail View
+
 const ProjectDetailView = ({ project, onLike }) => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -622,7 +618,7 @@ const ProjectDetailView = ({ project, onLike }) => {
   );
 };
 
-// Project Detail Modal Component
+
 const ProjectDetailModal = ({ 
   project, 
   onClose, 

@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: Basic info, 2: Add members
+  const [step, setStep] = useState(1); 
   const [teamData, setTeamData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
@@ -24,7 +24,7 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
       
       if (response.data.success) {
         setTeamData(response.data.data.team);
-        setStep(2); // Move to member selection
+        setStep(2); 
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create team');
@@ -68,7 +68,6 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
 
   const handleAddMembers = async () => {
     if (!teamData || selectedUsers.length === 0) {
-      // Skip if no members selected
       handleFinish();
       return;
     }
@@ -76,7 +75,7 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
     try {
       setLoading(true);
       
-      // Add all selected users to the team
+      
       for (const user of selectedUsers) {
         await api.post(`/teams/${teamData._id}/members`, {
           userId: user._id,
@@ -123,7 +122,6 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
       size="medium"
     >
       {step === 1 ? (
-        // Step 1: Basic team info
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -182,7 +180,6 @@ const CreateTeamModal = ({ isOpen, onClose, onTeamCreated }) => {
           </div>
         </form>
       ) : (
-        // Step 2: Add members
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

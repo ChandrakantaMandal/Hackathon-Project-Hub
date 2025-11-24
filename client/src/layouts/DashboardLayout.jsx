@@ -48,7 +48,6 @@ const DashboardLayout = () => {
 
   const sidebarVariants = undefined;
 
-  // Close sidebar on small screens, keep open on desktop
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) {
@@ -61,7 +60,6 @@ const DashboardLayout = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Load teams for sidebar (ensures visibility even if user.teams is not populated)
   useEffect(() => {
     const loadTeams = async () => {
       try {
@@ -77,7 +75,6 @@ const DashboardLayout = () => {
     loadTeams();
   }, [user]);
 
-  // Ensure dark class is in sync on initial load
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.classList.toggle('dark', !!darkMode);
@@ -86,7 +83,6 @@ const DashboardLayout = () => {
 
   const handleProjectCreated = (newProject) => {
     setShowCreateProject(false);
-    // Optionally refresh the page or update state
     window.location.reload();
   };
 

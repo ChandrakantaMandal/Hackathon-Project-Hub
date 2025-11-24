@@ -23,7 +23,7 @@ const HealthCheck = () => {
     };
 
     checkHealth();
-    const interval = setInterval(checkHealth, 30000); // Check every 30 seconds
+    const interval = setInterval(checkHealth, 30000); 
     return () => clearInterval(interval);
   }, []);
 

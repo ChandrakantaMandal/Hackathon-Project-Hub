@@ -1,10 +1,15 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import axios from "axios";
+
+// Base API URL
+const API_URL = "http://localhost:5000/api/auth";
+axios.defaults.withCredentials = true; // important for cookies
 
 
 const applyDarkClass = (enabled) => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.classList.toggle('dark', !!enabled);
+  if (typeof document !== "undefined") {
+    document.documentElement.classList.toggle("dark", !!enabled);
   }
 };
 
@@ -14,78 +19,220 @@ export const useAppStore = create(
       user: null,
       authReady: false,
       darkMode: false,
-      sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+      sidebarOpen:
+        typeof window !== "undefined" ? window.innerWidth >= 1024 : true,
 
-      // User
+      isAuthenticated: false,
+      isLoading: false,
+      isCheckingAuth: true,
+      error: null,
+      message: null,
+
+      get loading() {
+        return get().isLoading;
+      },
+
+    
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
 
-      // Auth functions
       initAuth: async () => {
+        set({ isCheckingAuth: true, error: null, authReady: false });
         try {
-          const token = localStorage.getItem('token');
-          if (!token) {
-            set({ authReady: true });
-            return;
+          const response = await axios.get(`${API_URL}/check-auth`);
+
+          if (response.data.authenticated && response.data.user) {
+            set({
+              user: response.data.user,
+              isAuthenticated: true,
+              isCheckingAuth: false,
+              authReady: true,
+            });
+          } else {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isCheckingAuth: false,
+              authReady: true,
+              error: null,
+            });
           }
-          const { default: api } = await import('../utils/api');
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const res = await api.get('/auth/me');
-          if (res.data?.success) set({ user: res.data.data.user });
-        } catch (_) {
-          localStorage.removeItem('token');
-        } finally {
-          set({ authReady: true });
+        } catch (error) {
+          
+          set({
+            user: null,
+            isAuthenticated: false,
+            isCheckingAuth: false,
+            authReady: true,
+            error: null,
+          });
         }
       },
 
-      login: async (email, password) => {
-        const { default: api } = await import('../utils/api');
-        const res = await api.post('/auth/login', { email, password });
-        if (res.data?.success) {
-          const { token, user } = res.data.data;
-          localStorage.setItem('token', token);
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          set({ user });
-          return { success: true, user };
+      
+      checkAuth: async () => {
+        set({ isCheckingAuth: true, error: null });
+        try {
+          const response = await axios.get(`${API_URL}/check-auth`);
+
+      
+          if (response.data.authenticated && response.data.user) {
+            set({
+              user: response.data.user,
+              isAuthenticated: true,
+              isCheckingAuth: false,
+            });
+          } else {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isCheckingAuth: false,
+              error: null,
+            });
+          }
+        } catch (error) {
+          
+          set({
+            user: null,
+            isAuthenticated: false,
+            isCheckingAuth: false,
+            error: null,
+          });
         }
-        return { success: false };
       },
 
+      //REGISTER 
       register: async (name, email, password) => {
-        const { default: api } = await import('../utils/api');
-        const res = await api.post('/auth/register', { name, email, password });
-        if (res.data?.success) {
-          const { token, user } = res.data.data;
-          localStorage.setItem('token', token);
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          set({ user });
-          return { success: true, user };
+        try {
+          set({ isLoading: true, error: null });
+          const res = await axios.post(`${API_URL}/register`, {
+            name,
+            email,
+            password,
+          });
+
+          set({
+            user: res.data.user,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          return { success: true, user: res.data.user };
+        } catch (error) {
+          const msg = error.response?.data?.message || "Error Signing Up";
+          set({ error: msg, isLoading: false });
+          throw error;
         }
-        return { success: false };
       },
 
-      refreshUser: async () => {
-        const { default: api } = await import('../utils/api');
-        const res = await api.get('/auth/me');
-        if (res.data?.success) set({ user: res.data.data.user });
+      //LOGIN
+      login: async (email, password) => {
+        try {
+          set({ isLoading: true, error: null });
+          const res = await axios.post(`${API_URL}/login`, { email, password });
+          set({
+            user: res.data.user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+          return { success: true, user: res.data.user };
+        } catch (error) {
+          const msg = error.response?.data?.message || "Error Logging In";
+          set({ error: msg, isLoading: false });
+          throw error;
+        }
       },
 
-      updateProfile: async (profileData) => {
-        const { default: api } = await import('../utils/api');
-        const res = await api.put('/auth/profile', profileData);
-        if (res.data?.success) set({ user: res.data.data.user });
-        return res.data?.success;
-      },
-
+      //LOGOUT
       logout: async () => {
-        const { default: api } = await import('../utils/api');
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
-        set({ user: null });
+        try {
+          set({ isLoading: true, error: null });
+          await axios.post(`${API_URL}/logout`);
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const msg = error.response?.data?.message || "Error Logging Out";
+          set({ error: msg, isLoading: false });
+          throw error;
+        }
       },
 
-      // Theme
+      //VERIFY EMAIL
+      verifyEmail: async (verificationCode) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await axios.post(`${API_URL}/verify-email`, {
+            code: verificationCode,
+          });
+          set({
+            user: res.data.user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return res.data;
+        } catch (error) {
+          const msg = error.response?.data?.message || "Error Verifying Email";
+          set({ error: msg, isLoading: false });
+          throw error;
+        }
+      },
+
+      //FORGOT PASSWORD
+      forgotPassword: async (email) => {
+        set({ isLoading: true, error: null });
+        try {
+          if (!email) {
+            set({
+              isLoading: false,
+              error: "Email is required",
+            });
+            throw new Error("Email is required");
+          }
+          const res = await axios.post(`${API_URL}/forgot-password`, { email });
+          set({ message: res.data.message, isLoading: false });
+          return res.data;
+        } catch (error) {
+          const msg =
+            error.response?.data?.message ||
+            "Error sending reset password email";
+          set({ isLoading: false, error: msg });
+          throw error;
+        }
+      },
+
+      //RESET PASSWORD
+      resetPassword: async (token, password) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await axios.post(`${API_URL}/reset-password/${token}`, {
+            password,
+          });
+          set({ message: res.data.message, isLoading: false });
+          return res.data;
+        } catch (error) {
+          const msg =
+            error.response?.data?.message || "Error resetting password";
+          set({ isLoading: false, error: msg });
+          throw error;
+        }
+      },
+
+      //UPDATE PROFILE 
+      updateProfile: async (profileData) => {
+        try {
+          const res = await axios.put(`${API_URL}/profile`, profileData);
+          if (res.data?.success) set({ user: res.data.data.user });
+          return res.data?.success;
+        } catch (error) {
+          set({ error: "Error updating profile" });
+        }
+      },
+
+      //THEME
       setDarkMode: (value) => {
         applyDarkClass(value);
         set({ darkMode: !!value });
@@ -96,12 +243,16 @@ export const useAppStore = create(
         set({ darkMode: next });
       },
 
-      // Sidebar
+      // IDEBAR
       setSidebarOpen: (open) => set({ sidebarOpen: !!open }),
     }),
     {
-      name: 'app-store',
-      partialize: (state) => ({ darkMode: state.darkMode, user: state.user }),
+      name: "app-store",
+      partialize: (state) => ({
+        darkMode: state.darkMode,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

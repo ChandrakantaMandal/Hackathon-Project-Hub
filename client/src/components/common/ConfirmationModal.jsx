@@ -11,7 +11,7 @@ const ConfirmationModal = ({
   message,
   confirmText = 'Delete',
   cancelText = 'Cancel',
-  type = 'danger' // 'danger', 'warning', 'info'
+  type = 'danger' 
 }) => {
   const typeStyles = {
     danger: {

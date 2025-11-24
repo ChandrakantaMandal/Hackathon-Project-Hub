@@ -9,7 +9,7 @@ const submitProject = async (req, res) => {
     const { projectId, liveLink, githubLink, description, techStack } =
       req.body;
 
-    // Validate required fields
+  
     if (!projectId || !liveLink || !githubLink) {
       return res.status(400).json({
         success: false,
@@ -25,7 +25,7 @@ const submitProject = async (req, res) => {
       });
     }
 
-    // Check if user is team owner
+
     if (project.team.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -33,7 +33,7 @@ const submitProject = async (req, res) => {
       });
     }
 
-    // Check if already submitted
+
     const existingSubmission = await Submission.findOne({ project: projectId });
     if (existingSubmission) {
       return res.status(400).json({
@@ -54,11 +54,10 @@ const submitProject = async (req, res) => {
 
     await submission.save();
 
-    // Link submission to project and mark as submitted
+
     try {
       project.isSubmitted = true;
       project.submissionId = submission._id;
-      // Optionally mirror links to project.links
       project.links = {
         ...(project.links || {}),
         liveDemo: liveLink,
@@ -67,14 +66,14 @@ const submitProject = async (req, res) => {
       await project.save();
     } catch (_) {}
 
-    // Auto-award first submission badge
+
     const submissionCount = await Submission.countDocuments();
     if (submissionCount === 1) {
       submission.badges.push({
         type: "first-riser",
         name: "The First Riser",
         description: "First team to submit their project",
-        awardedBy: null, // System awarded
+        awardedBy: null,
       });
       await submission.save();
     }
@@ -99,7 +98,6 @@ const submitProject = async (req, res) => {
 // @access  Public
 const leaderboard = async (req, res) => {
   try {
-    // Only consider submissions that have at least one score
     const basePopulate = [
       { path: 'project', select: 'title description category' },
       { path: 'team', select: 'name' },
@@ -108,7 +106,6 @@ const leaderboard = async (req, res) => {
 
     const fetchWith = async (filter) => {
       const docs = await Submission.find(filter).populate(basePopulate).lean();
-      // Ensure finalScore is computed if missing/outdated
       const computed = docs.map((d) => {
         const scores = d.scores || [];
         const hasScores = Array.isArray(scores) && scores.length > 0;
@@ -118,7 +115,6 @@ const leaderboard = async (req, res) => {
         const avg = hasScores ? sum / (scores.length * 5) : 0;
         return { ...d, finalScore: typeof d.finalScore === 'number' && d.finalScore > 0 ? d.finalScore : avg };
       });
-      // Sort by finalScore desc, then createdAt asc for stability
       computed.sort((a, b) => {
         if ((b.finalScore || 0) !== (a.finalScore || 0)) return (b.finalScore || 0) - (a.finalScore || 0);
         return new Date(a.createdAt) - new Date(b.createdAt);
@@ -128,11 +124,9 @@ const leaderboard = async (req, res) => {
 
     let submissions = await fetchWith({ status: 'reviewed', 'scores.0': { $exists: true } });
     if (!submissions || submissions.length === 0) {
-      // Fallback to any scored submissions
       submissions = await fetchWith({ 'scores.0': { $exists: true } });
     }
 
-    // Rank all, return full list (no limit)
     submissions.forEach((s, i) => { s.rank = i + 1; });
 
     res.json({ success: true, data: { leaderboard: submissions } });

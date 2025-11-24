@@ -1,24 +1,44 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FolderIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { formatDate, getStatusColor, getCategoryIcon } from '../../utils/helpers';
-import { useAppStore } from '../../store/useAppStore';
+import React, { memo, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FolderIcon, ClockIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  formatDate,
+  getStatusColor,
+  getCategoryIcon,
+} from "../../utils/helpers";
+import { useAppStore } from "../../store/useAppStore";
 
-const ProjectCard = ({ project, onDelete }) => {
+const ProjectCard = memo(({ project, onDelete }) => {
   const { user } = useAppStore();
-  const statusColor = getStatusColor(project.status, 'project');
-  const categoryIcon = getCategoryIcon(project.category);
 
-  const isOwner = project.owner?._id === user?._id;
 
-  const handleDeleteClick = (e) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation();
-    if (onDelete) {
-      onDelete(project._id);
-    }
-  };
+  const statusColor = useMemo(
+    () => getStatusColor(project.status, "project"),
+    [project.status]
+  );
+
+  const categoryIcon = useMemo(
+    () => getCategoryIcon(project.category),
+    [project.category]
+  );
+
+  const isOwner = useMemo(
+    () => project.owner?._id === user?._id,
+    [project.owner?._id, user?._id]
+  );
+
+
+  const handleDeleteClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onDelete) {
+        onDelete(project._id);
+      }
+    },
+    [onDelete, project._id]
+  );
 
   return (
     <motion.div
@@ -27,7 +47,6 @@ const ProjectCard = ({ project, onDelete }) => {
     >
       <Link to={`/dashboard/project/${project._id}`}>
         <div className="glass-card p-6 hover-lift h-full relative">
-          {/* Delete button - only show for project owner */}
           {isOwner && onDelete && (
             <button
               onClick={handleDeleteClick}
@@ -37,7 +56,7 @@ const ProjectCard = ({ project, onDelete }) => {
               <TrashIcon className="w-4 h-4" />
             </button>
           )}
-          
+
           <div className="flex items-start justify-between mb-4 pr-8">
             <div className="flex-1">
               <div className="flex items-center mb-2">
@@ -55,7 +74,7 @@ const ProjectCard = ({ project, onDelete }) => {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className={`status-badge status-${statusColor}`}>
-                {project.status.replace('-', ' ')}
+                {project.status.replace("-", " ")}
               </span>
               <span className="text-sm text-gray-600">
                 {project.progress}% complete
@@ -98,8 +117,14 @@ const ProjectCard = ({ project, onDelete }) => {
               {project.collaborators.slice(0, 3).map((collaborator, index) => (
                 <img
                   key={collaborator._id || index}
-                  src={collaborator.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(collaborator.name || 'User')}&background=8B5CF6&color=ffffff&size=128&bold=true`}
-                  alt={collaborator.name || 'Collaborator'}
+                  src={
+                    collaborator.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      collaborator.name || "User"
+                    )}&background=8B5CF6&color=ffffff&size=128&bold=true`
+                  }
+                  alt={collaborator.name || "Collaborator"}
+                  loading="lazy"
                   className="w-8 h-8 rounded-full border-2 border-white"
                 />
               ))}
@@ -116,6 +141,8 @@ const ProjectCard = ({ project, onDelete }) => {
       </Link>
     </motion.div>
   );
-};
+});
+
+ProjectCard.displayName = "ProjectCard";
 
 export default ProjectCard;
