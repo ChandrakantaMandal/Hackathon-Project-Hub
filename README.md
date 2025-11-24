@@ -395,42 +395,114 @@ Server
 
 ## API Overview
 
-Auth (participants)
-- POST /api/auth/register — name, email, password
-- POST /api/auth/login — email, password
-- GET  /api/auth/me — current user
+### Authentication (Participants)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/auth/register` | Register new user (name, email, password) | No |
+| POST | `/api/auth/verify-email` | Verify email with OTP code | No |
+| POST | `/api/auth/login` | Login user (email, password) | No |
+| POST | `/api/auth/logout` | Logout user | Yes |
+| GET | `/api/auth/check-auth` | Check authentication status | Yes |
+| POST | `/api/auth/forgot-password` | Request password reset | No |
+| POST | `/api/auth/reset-password/:token` | Reset password with token | No |
 
-Judge
-- POST /api/judge/register — name, email, password, judgeCode
-- POST /api/judge/login — email, password
-- GET  /api/judge/submissions — all submissions
-- POST /api/judge/submissions/:id/score — submit score
-- POST /api/judge/submissions/:id/badge — award badge
-- DELETE /api/judge/submissions/:id/badge/:index — remove badge
+### Judge Portal
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/judge/register` | Register judge (name, email, password, judgeCode) | No |
+| POST | `/api/judge/login` | Login judge (email, password) | No |
+| GET | `/api/judge/submissions` | Get all submissions | Yes (Judge) |
+| POST | `/api/judge/submissions/:id/score` | Submit score for project | Yes (Judge) |
+| POST | `/api/judge/submissions/:id/badge` | Award badge to project | Yes (Judge) |
+| DELETE | `/api/judge/submissions/:id/badge/:index` | Remove badge from project | Yes (Judge) |
 
-Teams
-- GET/POST /api/teams
-- GET /api/teams/:id
-- POST /api/teams/:id/members
+### Teams
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/teams` | Get all user's teams | Yes |
+| POST | `/api/teams` | Create new team | Yes |
+| GET | `/api/teams/:id` | Get team details | Yes |
+| PUT | `/api/teams/:id` | Update team | Yes (Owner) |
+| DELETE | `/api/teams/:id` | Delete team | Yes (Owner) |
+| POST | `/api/teams/:id/members` | Add member to team | Yes |
+| DELETE | `/api/teams/:id/members/:userId` | Remove member from team | Yes (Owner) |
 
-Projects
-- GET/POST /api/projects
-- GET/PUT/DELETE /api/projects/:id
+### Projects
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/projects` | Get all user's projects | Yes |
+| POST | `/api/projects` | Create new project | Yes |
+| GET | `/api/projects/:id` | Get project details | Yes |
+| PUT | `/api/projects/:id` | Update project | Yes (Owner) |
+| DELETE | `/api/projects/:id` | Delete project | Yes (Owner) |
 
-Showcase & Submissions
-- POST /api/submissions — submit project
-- GET  /api/showcase — public list + filters
-- GET  /api/showcase/:id — project details
-- GET  /api/submissions/leaderboard — ranked winners
+### Tasks
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/tasks/project/:projectId` | Get all tasks for project | Yes |
+| POST | `/api/tasks` | Create new task | Yes |
+| PUT | `/api/tasks/:id` | Update task | Yes |
+| DELETE | `/api/tasks/:id` | Delete task | Yes |
 
-All protected routes expect Authorization: Bearer <token>
+### Showcase & Submissions
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/submissions` | Submit project for judging | Yes |
+| GET | `/api/showcase` | Get public projects (with filters) | No |
+| GET | `/api/showcase/:id` | Get project details | No |
+| POST | `/api/showcase/:id/like` | Like a project | Yes |
+| POST | `/api/showcase/:id/comment` | Comment on project | Yes |
+| GET | `/api/submissions/leaderboard` | Get ranked submissions | No |
+
+### Notes
+- All protected routes require `Authorization: Bearer <token>` header
+- Participants use HTTP-only cookies for authentication
+- Judges use localStorage for authentication
+- Rate limiting: 100 requests per 15 minutes per IP
+- All responses are gzip compressed
 
 
 ## Roadmap
-- Admin view and custom award categories
-- Team chat and notifications
-- File uploads (images, docs) per project
-- Tests (unit/e2e) and CI
+
+### Planned Features
+- [ ] **Admin Dashboard**
+  - Admin view for managing users, teams, and projects
+  - Custom award categories and badges
+  - Analytics and reporting
+- [ ] **Real-time Features**
+  - Team chat and messaging
+  - Real-time notifications
+  - Live project updates with WebSockets
+- [ ] **File Management**
+  - File uploads (images, documents, presentations)
+  - Project media gallery
+  - Cloud storage integration (AWS S3, Cloudinary)
+- [ ] **Enhanced Collaboration**
+  - Code review and feedback system
+  - Project milestones and deadlines
+  - Team activity timeline
+- [ ] **Testing & CI/CD**
+  - Unit tests (Jest, Vitest)
+  - Integration tests
+  - End-to-end tests (Playwright, Cypress)
+  - GitHub Actions CI/CD pipeline
+- [ ] **Additional Features**
+  - Export projects to PDF
+  - Email notifications for important events
+  - Social media sharing
+  - Project templates
+  - Advanced search and filtering
+
+### Recent Updates
+- ✅ Email verification with OTP
+- ✅ Performance optimizations (code splitting, compression, indexes)
+- ✅ Gzip compression middleware
+- ✅ Database indexes for all models
+- ✅ React component memoization
+- ✅ Lazy loading for images
+- ✅ Rate limiting
+- ✅ Security headers with Helmet
+- ✅ In-memory temporary registration storage
 
 ## Future Update
 
