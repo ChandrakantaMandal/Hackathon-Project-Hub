@@ -621,7 +621,6 @@ Server
 
 MIT — see LICENSE if present.
 
-## Future Update
 
 🚀 Core Platform Enhancements
 
