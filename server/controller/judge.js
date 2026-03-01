@@ -163,7 +163,7 @@ const getSubmissions = async (req, res) => {
       .populate("team", "name")
       .populate("submittedBy", "name email")
       .populate("scores.judge", "name")
-      .sort({ createdAt: 1 }); // First submitted first
+      .sort({ createdAt: 1 }); 
 
     res.json({
       success: true,

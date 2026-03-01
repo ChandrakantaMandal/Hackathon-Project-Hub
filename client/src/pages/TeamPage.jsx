@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { UserPlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import api from '../utils/api';
-import Button from '../components/common/Button';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import TeamCard from '../components/dashboard/TeamCard';
-import ProjectCard from '../components/dashboard/ProjectCard';
-import UserSelector from '../components/dashboard/UserSelector';
-import { useAppStore } from '../store/useAppStore';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { UserPlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import api from "../utils/api";
+import Button from "../components/common/Button";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import TeamCard from "../components/dashboard/TeamCard";
+import ProjectCard from "../components/dashboard/ProjectCard";
+import UserSelector from "../components/dashboard/UserSelector";
+import { useAppStore } from "../store/useAppStore";
+import toast from "react-hot-toast";
 
 const TeamPage = () => {
   const { teamId } = useParams();
@@ -16,16 +16,16 @@ const TeamPage = () => {
   const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [forbidden, setForbidden] = useState(false);
-  const [inviteCode, setInviteCode] = useState('');
+  const [inviteCode, setInviteCode] = useState("");
   const [showUserSelector, setShowUserSelector] = useState(false);
   const [removing, setRemoving] = useState(null);
 
   const fetchTeam = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
       setForbidden(false);
       const res = await api.get(`/teams/${teamId}`);
       if (res.data.success) setTeam(res.data.data.team);
@@ -40,7 +40,7 @@ const TeamPage = () => {
         await fetchTeam();
       } catch (e) {
         const status = e?.response?.status;
-        const message = e?.response?.data?.message || 'Failed to load team';
+        const message = e?.response?.data?.message || "Failed to load team";
         setError(message);
         if (status === 403) setForbidden(true);
       }
@@ -52,14 +52,16 @@ const TeamPage = () => {
     if (!inviteCode || !inviteCode.trim()) return;
     setRegenerating(true);
     try {
-      const res = await api.post(`/teams/join/${encodeURIComponent(inviteCode.trim())}`);
+      const res = await api.post(
+        `/teams/join/${encodeURIComponent(inviteCode.trim())}`,
+      );
       if (res.data.success) {
-        setInviteCode('');
+        setInviteCode("");
         setForbidden(false);
         await fetchTeam();
       }
     } catch (e) {
-      const message = e?.response?.data?.message || 'Failed to join team';
+      const message = e?.response?.data?.message || "Failed to join team";
       setError(message);
     } finally {
       setRegenerating(false);
@@ -89,33 +91,33 @@ const TeamPage = () => {
       const res = await api.delete(`/teams/${team._id}/members/${memberId}`);
       if (res.data.success) {
         setTeam(res.data.data.team);
-        toast.success('Member removed successfully');
+        toast.success("Member removed successfully");
       }
     } catch (error) {
-      const message = error.response?.data?.message || 'Failed to remove member';
+      const message =
+        error.response?.data?.message || "Failed to remove member";
       toast.error(message);
     } finally {
       setRemoving(null);
     }
   };
 
-  
   const canManageMembers = () => {
     if (!team || !user) return false;
-    const member = team.members.find(m => m.user._id === user._id);
-    return member && ['owner', 'admin'].includes(member.role);
+    const member = team.members.find((m) => m.user._id === user._id);
+    return member && ["owner", "admin"].includes(member.role);
   };
-  
+
   const canManageTeam = () => {
     if (!team || !user) return false;
-    const userMember = team.members?.find(m => m.user._id === user._id);
-    return userMember?.role === 'owner' || userMember?.role === 'admin';
+    const userMember = team.members?.find((m) => m.user._id === user._id);
+    return userMember?.role === "owner" || userMember?.role === "admin";
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <LoadingSpinner size="large" />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -125,8 +127,13 @@ const TeamPage = () => {
       return (
         <div className="flex items-center justify-center min-h-96">
           <div className="glass-card p-8 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Access denied</h3>
-            <p className="text-gray-600 mb-4">You are not a member of this team. If you have an invite code, enter it below to join.</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Access denied
+            </h3>
+            <p className="text-gray-600 mb-4">
+              You are not a member of this team. If you have an invite code,
+              enter it below to join.
+            </p>
             <div className="flex gap-2">
               <input
                 className="input-glass flex-1"
@@ -134,7 +141,9 @@ const TeamPage = () => {
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
               />
-              <Button onClick={handleJoin} loading={regenerating}>Join</Button>
+              <Button onClick={handleJoin} loading={regenerating}>
+                Join
+              </Button>
             </div>
             {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
           </div>
@@ -145,7 +154,9 @@ const TeamPage = () => {
       return (
         <div className="flex items-center justify-center min-h-96">
           <div className="glass-card p-8 text-center max-w-lg">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Unable to open team</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Unable to open team
+            </h3>
             <p className="text-gray-600 mb-6">{error}</p>
             <Button onClick={fetchTeam}>Try again</Button>
           </div>
@@ -166,7 +177,8 @@ const TeamPage = () => {
             )}
             {canManageTeam() && (
               <div className="mt-3 text-sm text-gray-600">
-                Invite Code: <span className="font-mono">{team.inviteCode}</span>
+                Invite Code:{" "}
+                <span className="font-mono">{team.inviteCode}</span>
               </div>
             )}
           </div>
@@ -184,12 +196,11 @@ const TeamPage = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="glass-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Members</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                Members
+              </h3>
               {canManageMembers() && (
-                <Button
-                  size="small"
-                  onClick={() => setShowUserSelector(true)}
-                >
+                <Button size="small" onClick={() => setShowUserSelector(true)}>
                   <UserPlusIcon className="w-4 h-4 mr-2" />
                   Add Member
                 </Button>
@@ -198,16 +209,26 @@ const TeamPage = () => {
             {team.members && team.members.length > 0 ? (
               <div className="space-y-3">
                 {team.members.map((m, i) => (
-                  <div key={m.user?._id || i} className="flex items-center justify-between p-3 bg-gray-100 dark:bg-slate-700 rounded-lg">
+                  <div
+                    key={m.user?._id || i}
+                    className="flex items-center justify-between p-3 bg-gray-100 dark:bg-slate-700 rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <img
-                        src={m.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.user?.name || 'User')}&background=8B5CF6&color=ffffff&size=128&bold=true`}
-                        alt={m.user?.name || 'Member'}
+                        src={
+                          m.user?.avatar ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(m.user?.name || "User")}&background=8B5CF6&color=ffffff&size=128&bold=true`
+                        }
+                        alt={m.user?.name || "Member"}
                         className="w-10 h-10 rounded-full"
                       />
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-slate-100">{m.user?.name || 'Member'}</p>
-                        <p className="text-sm text-gray-600 dark:text-slate-400 capitalize">{m.role}</p>
+                        <p className="font-medium text-gray-900 dark:text-slate-100">
+                          {m.user?.name || "Member"}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 capitalize">
+                          {m.role}
+                        </p>
                       </div>
                     </div>
                     {canManageMembers() && m.user?._id !== user?._id && (
@@ -226,7 +247,9 @@ const TeamPage = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-600 dark:text-slate-400 mb-4">No members yet.</p>
+                <p className="text-gray-600 dark:text-slate-400 mb-4">
+                  No members yet.
+                </p>
                 {canManageMembers() && (
                   <Button
                     variant="outline"
@@ -241,7 +264,9 @@ const TeamPage = () => {
           </div>
 
           <div className="glass-card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4">Projects</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4">
+              Projects
+            </h3>
             {team.projects && team.projects.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6">
                 {team.projects.map((p) => (
@@ -249,29 +274,42 @@ const TeamPage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600 dark:text-slate-400">No projects yet.</p>
+              <p className="text-gray-600 dark:text-slate-400">
+                No projects yet.
+              </p>
             )}
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="glass-card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4">Owner</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4">
+              Owner
+            </h3>
             <div className="flex items-center gap-3">
               <img
-                src={team.owner?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(team.owner?.name || 'User')}&background=8B5CF6&color=ffffff&size=128&bold=true`}
-                alt={team.owner?.name || 'Owner'}
+                src={
+                  team.owner?.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(team.owner?.name || "User")}&background=8B5CF6&color=ffffff&size=128&bold=true`
+                }
+                alt={team.owner?.name || "Owner"}
                 className="w-10 h-10 rounded-full"
               />
               <div>
-                <p className="font-medium text-gray-900 dark:text-slate-100">{team.owner?.name || 'Owner'}</p>
-                <p className="text-sm text-gray-600 dark:text-slate-400">Owner</p>
+                <p className="font-medium text-gray-900 dark:text-slate-100">
+                  {team.owner?.name || "Owner"}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-slate-400">
+                  Owner
+                </p>
               </div>
             </div>
           </div>
 
           <div className="glass-card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-2">Stats</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-2">
+              Stats
+            </h3>
             <ul className="text-gray-700 dark:text-slate-300 space-y-1 text-sm">
               <li>Total Projects: {team.stats?.totalProjects || 0}</li>
               <li>Completed Projects: {team.stats?.completedProjects || 0}</li>
@@ -295,4 +333,3 @@ const TeamPage = () => {
 };
 
 export default TeamPage;
-

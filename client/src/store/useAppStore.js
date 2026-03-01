@@ -4,7 +4,7 @@ import axios from "axios";
 
 // Base API URL
 const API_URL = "http://localhost:5000/api/auth";
-axios.defaults.withCredentials = true; // important for cookies
+axios.defaults.withCredentials = true; 
 
 
 const applyDarkClass = (enabled) => {

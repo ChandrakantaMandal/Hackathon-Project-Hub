@@ -109,7 +109,7 @@ const ShowcasePage = () => {
               likes: response.data.data.liked
                 ? [...prev.showcase.likes, { user: user._id }]
                 : prev.showcase.likes.filter(
-                    (like) => like.user._id !== user._id
+                    (like) => like.user._id !== user._id,
                   ),
             },
           }));
@@ -126,12 +126,12 @@ const ShowcasePage = () => {
                     likes: response.data.data.liked
                       ? [...p.showcase.likes, { user: user._id }]
                       : p.showcase.likes.filter(
-                          (like) => like.user._id !== user._id
+                          (like) => like.user._id !== user._id,
                         ),
                   },
                 }
-              : p
-          )
+              : p,
+          ),
         );
       }
     } catch (error) {
@@ -155,7 +155,7 @@ const ShowcasePage = () => {
         `/showcase/${selectedProject._id}/comments`,
         {
           text: comment.trim(),
-        }
+        },
       );
 
       if (response.data.success) {
@@ -163,7 +163,10 @@ const ShowcasePage = () => {
           ...prev,
           showcase: {
             ...prev.showcase,
-            comments: [...(prev.showcase?.comments || []), response.data.data.comment],
+            comments: [
+              ...(prev.showcase?.comments || []),
+              response.data.data.comment,
+            ],
           },
         }));
         setComment("");
@@ -178,19 +181,19 @@ const ShowcasePage = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await api.get('/submissions/leaderboard');
+      const res = await api.get("/submissions/leaderboard");
       if (res.data.success) {
         setLeaderboard(res.data.data.leaderboard || []);
       }
     } catch (error) {
-      console.error('Failed to fetch leaderboard:', error);
+      console.error("Failed to fetch leaderboard:", error);
     }
   };
 
   if (loading && !projects.length) {
     return (
       <div className="min-h-screen gradient-purple-blue flex items-center justify-center">
-        <LoadingSpinner size="large" color="white" />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -225,12 +228,11 @@ const ShowcasePage = () => {
                 const next = !showLeaderboard;
                 setShowLeaderboard(next);
                 if (next) {
-                  
                   fetchLeaderboard();
                 }
               }}
             >
-              🏆 {showLeaderboard ? 'Show Projects' : 'Leaderboard'}
+              🏆 {showLeaderboard ? "Show Projects" : "Leaderboard"}
             </Button>
           </div>
         </div>
@@ -238,23 +240,37 @@ const ShowcasePage = () => {
         {/* Winners Section */}
         {leaderboard.length > 0 && !showLeaderboard && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">🏆 Hackathon Winners</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              🏆 Hackathon Winners
+            </h2>
             <div className="grid md:grid-cols-3 gap-4">
               {leaderboard.slice(0, 3).map((submission, index) => (
-                <div key={submission._id} className={`glass-card p-6 ${index === 0 ? 'border-2 border-yellow-400' : index === 1 ? 'border-2 border-gray-400' : 'border-2 border-orange-400'}`}>
+                <div
+                  key={submission._id}
+                  className={`glass-card p-6 ${index === 0 ? "border-2 border-yellow-400" : index === 1 ? "border-2 border-gray-400" : "border-2 border-orange-400"}`}
+                >
                   <div className="text-center">
-                    <div className={`text-4xl mb-2 ${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}`}>
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    <div
+                      className={`text-4xl mb-2 ${index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}`}
+                    >
+                      {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
                     </div>
-                    <h3 className="font-bold text-lg">{submission.project?.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-slate-400">Team: {submission.team?.name}</p>
+                    <h3 className="font-bold text-lg">
+                      {submission.project?.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">
+                      Team: {submission.team?.name}
+                    </p>
                     <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
-                      Score: {submission.finalScore?.toFixed(1) || 'N/A'}/10
+                      Score: {submission.finalScore?.toFixed(1) || "N/A"}/10
                     </p>
                     {submission.badges?.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1 justify-center">
                         {submission.badges.map((badge, i) => (
-                          <span key={i} className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                          <span
+                            key={i}
+                            className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"
+                          >
                             🏅 {badge.name}
                           </span>
                         ))}
@@ -270,23 +286,38 @@ const ShowcasePage = () => {
         {/* Leaderboard (exclusive view) */}
         {showLeaderboard && (
           <div className="glass-card p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">🏆 Leaderboard</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              🏆 Leaderboard
+            </h2>
             <div className="space-y-4">
               {leaderboard.map((submission, index) => (
-                <div key={submission._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                <div
+                  key={submission._id}
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-lg"
+                >
                   <div className="flex items-center gap-4">
-                    <div className={`text-2xl font-bold ${index < 3 ? 'text-yellow-600' : 'text-gray-500'}`}>
+                    <div
+                      className={`text-2xl font-bold ${index < 3 ? "text-yellow-600" : "text-gray-500"}`}
+                    >
                       #{index + 1}
                     </div>
                     <div>
-                      <h3 className="font-semibold">{submission.project?.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-slate-400">Team: {submission.team?.name}</p>
+                      <h3 className="font-semibold">
+                        {submission.project?.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-slate-400">
+                        Team: {submission.team?.name}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-lg">{submission.finalScore?.toFixed(1) || 'N/A'}/10</p>
+                    <p className="font-bold text-lg">
+                      {submission.finalScore?.toFixed(1) || "N/A"}/10
+                    </p>
                     {submission.badges?.length > 0 && (
-                      <p className="text-sm text-gray-600">🏅 {submission.badges.length} badges</p>
+                      <p className="text-sm text-gray-600">
+                        🏅 {submission.badges.length} badges
+                      </p>
                     )}
                   </div>
                 </div>
@@ -302,82 +333,86 @@ const ShowcasePage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-8 shadow-lg"
           >
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-              />
-              <MagnifyingGlassIcon className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col md:flex-row gap-4"
             >
-              <option value="all">All Categories</option>
-              <option value="web">Web Development</option>
-              <option value="mobile">Mobile App</option>
-              <option value="design">Design</option>
-              <option value="ai">AI/ML</option>
-              <option value="game">Game Development</option>
-              <option value="other">Other</option>
-            </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-            >
-              <option value="recent">Most Recent</option>
-              <option value="popular">Most Popular</option>
-              <option value="views">Most Viewed</option>
-            </select>
-            <Button type="submit" loading={loading} className="px-6">
-              Search
-            </Button>
-          </form>
-        </motion.div>
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+                />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+              >
+                <option value="all">All Categories</option>
+                <option value="web">Web Development</option>
+                <option value="mobile">Mobile App</option>
+                <option value="design">Design</option>
+                <option value="ai">AI/ML</option>
+                <option value="game">Game Development</option>
+                <option value="other">Other</option>
+              </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
+              >
+                <option value="recent">Most Recent</option>
+                <option value="popular">Most Popular</option>
+                <option value="views">Most Viewed</option>
+              </select>
+              <Button type="submit" loading={loading} className="px-6">
+                Search
+              </Button>
+            </form>
+          </motion.div>
         )}
 
         {/* Projects */}
-        {!showLeaderboard && (projects.length > 0 ? (
-          <motion.div
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.1 }}
-          >
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={project._id}
-                project={project}
-                onLike={() => handleLike(project)}
-                onClick={() => setSelectedProject(project)}
-                user={user}
-                index={index}
-              />
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="text-gray-400 dark:text-slate-500">
-              <FolderIcon className="w-20 h-20 mx-auto mb-4" />
-              <p className="text-xl mb-2">
-                {loading ? "Loading projects..." : "No projects found"}
-              </p>
-              <p className="text-sm">
-                {!loading && "Try adjusting your search criteria"}
-              </p>
-            </div>
-          </motion.div>
-        ))}
+        {!showLeaderboard &&
+          (projects.length > 0 ? (
+            <motion.div
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ staggerChildren: 0.1 }}
+            >
+              {projects.map((project, index) => (
+                <ProjectCard
+                  key={project._id}
+                  project={project}
+                  onLike={() => handleLike(project)}
+                  onClick={() => setSelectedProject(project)}
+                  user={user}
+                  index={index}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <div className="text-gray-400 dark:text-slate-500">
+                <FolderIcon className="w-20 h-20 mx-auto mb-4" />
+                <p className="text-xl mb-2">
+                  {loading ? "Loading projects..." : "No projects found"}
+                </p>
+                <p className="text-sm">
+                  {!loading && "Try adjusting your search criteria"}
+                </p>
+              </div>
+            </motion.div>
+          ))}
 
         {/* Pagination */}
         {!showLeaderboard && pagination.pages > 1 && (
@@ -400,7 +435,7 @@ const ShowcasePage = () => {
                   >
                     {page}
                   </button>
-                )
+                ),
               )}
             </div>
           </motion.div>
@@ -437,7 +472,10 @@ const ProjectCard = ({ project, onLike, onClick, user, index }) => {
       {/* Project Image */}
       {project.images && project.images.length > 0 ? (
         <img
-          src={project.images.find(img => img.isPrimary)?.url || project.images[0].url}
+          src={
+            project.images.find((img) => img.isPrimary)?.url ||
+            project.images[0].url
+          }
           alt={project.title}
           className="w-full h-48 object-cover"
         />
@@ -493,7 +531,6 @@ const ProjectCard = ({ project, onLike, onClick, user, index }) => {
     </motion.div>
   );
 };
-
 
 const ProjectDetailView = ({ project, onLike }) => {
   return (
@@ -618,16 +655,15 @@ const ProjectDetailView = ({ project, onLike }) => {
   );
 };
 
-
-const ProjectDetailModal = ({ 
-  project, 
-  onClose, 
-  onLike, 
-  onComment, 
-  comment, 
-  setComment, 
-  submittingComment, 
-  user 
+const ProjectDetailModal = ({
+  project,
+  onClose,
+  onLike,
+  onComment,
+  comment,
+  setComment,
+  submittingComment,
+  user,
 }) => {
   return (
     <motion.div
@@ -665,30 +701,65 @@ const ProjectDetailModal = ({
         </div>
 
         {/* Quick Links (GitHub / Live Demo) */}
-        {(project.links && (project.links.github || project.links.demo || project.links.repository || project.links.liveDemo)) && (
-          <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-            <div className="flex flex-wrap gap-3">
-              {project.links.github && (
-                <a href={project.links.github} target="_blank" rel="noreferrer" className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">GitHub</a>
-              )}
-              {(project.links.demo || project.links.liveDemo) && (
-                <a href={project.links.demo || project.links.liveDemo} target="_blank" rel="noreferrer" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Live Demo</a>
-              )}
-              {project.links.design && (
-                <a href={project.links.design} target="_blank" rel="noreferrer" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Design</a>
-              )}
-              {project.links.documentation && (
-                <a href={project.links.documentation} target="_blank" rel="noreferrer" className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800">Docs</a>
-              )}
+        {project.links &&
+          (project.links.github ||
+            project.links.demo ||
+            project.links.repository ||
+            project.links.liveDemo) && (
+            <div className="p-6 border-b border-gray-200 dark:border-slate-700">
+              <div className="flex flex-wrap gap-3">
+                {project.links.github && (
+                  <a
+                    href={project.links.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+                  >
+                    GitHub
+                  </a>
+                )}
+                {(project.links.demo || project.links.liveDemo) && (
+                  <a
+                    href={project.links.demo || project.links.liveDemo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Live Demo
+                  </a>
+                )}
+                {project.links.design && (
+                  <a
+                    href={project.links.design}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    Design
+                  </a>
+                )}
+                {project.links.documentation && (
+                  <a
+                    href={project.links.documentation}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800"
+                  >
+                    Docs
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Project Images */}
         {project.images && project.images.length > 0 && (
           <div className="p-6">
             <img
-              src={project.images.find(img => img.isPrimary)?.url || project.images[0].url}
+              src={
+                project.images.find((img) => img.isPrimary)?.url ||
+                project.images[0].url
+              }
               alt={project.title}
               className="w-full h-64 object-cover rounded-lg"
             />
@@ -702,9 +773,11 @@ const ProjectDetailModal = ({
               <button
                 onClick={onLike}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  project.showcase?.likes?.some(like => like.user === user?._id)
-                    ? 'bg-red-100 text-red-600'
-                    : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400'
+                  project.showcase?.likes?.some(
+                    (like) => like.user === user?._id,
+                  )
+                    ? "bg-red-100 text-red-600"
+                    : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
                 }`}
               >
                 <HeartIcon className="w-5 h-5" />
@@ -717,7 +790,10 @@ const ProjectDetailModal = ({
             </div>
             <div className="flex items-center space-x-2">
               <img
-                src={project.owner?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner?.name || 'User')}`}
+                src={
+                  project.owner?.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner?.name || "User")}`
+                }
                 alt={project.owner?.name}
                 className="w-8 h-8 rounded-full"
               />
@@ -744,23 +820,50 @@ const ProjectDetailModal = ({
 
         {/* Team & Members */}
         <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-3">Team & Members</h3>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-3">
+            Team & Members
+          </h3>
           <div className="space-y-2 text-sm text-gray-700 dark:text-slate-300">
-            <div>Team: <span className="font-medium">{project.team?.name || 'N/A'}</span></div>
-            <div>Owner: <span className="font-medium">{project.owner?.name || 'Unknown'}</span></div>
+            <div>
+              Team:{" "}
+              <span className="font-medium">{project.team?.name || "N/A"}</span>
+            </div>
+            <div>
+              Owner:{" "}
+              <span className="font-medium">
+                {project.owner?.name || "Unknown"}
+              </span>
+            </div>
           </div>
           <div className="mt-3">
             <div className="flex -space-x-2">
               {(() => {
                 const arr = [];
                 const seen = new Set();
-                const add = (u) => { if (!u) return; const obj = u.user ? u.user : u; const id = obj?._id || obj?.id || obj?.email || obj?.name; if (id && !seen.has(id)) { seen.add(id); arr.push(obj); } };
+                const add = (u) => {
+                  if (!u) return;
+                  const obj = u.user ? u.user : u;
+                  const id = obj?._id || obj?.id || obj?.email || obj?.name;
+                  if (id && !seen.has(id)) {
+                    seen.add(id);
+                    arr.push(obj);
+                  }
+                };
                 add(project.owner);
                 (project.team?.members || []).forEach(add);
                 (project.collaborators || []).forEach(add);
                 return arr;
               })().map((m, i) => (
-                <img key={m._id || i} src={m.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'User')}&background=8B5CF6&color=ffffff&size=128&bold=true`} alt={m.name} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800" title={m.name} />
+                <img
+                  key={m._id || i}
+                  src={
+                    m.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || "User")}&background=8B5CF6&color=ffffff&size=128&bold=true`
+                  }
+                  alt={m.name}
+                  className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800"
+                  title={m.name}
+                />
               ))}
             </div>
           </div>
@@ -777,7 +880,10 @@ const ProjectDetailModal = ({
             <form onSubmit={onComment} className="mb-6">
               <div className="flex space-x-3">
                 <img
-                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
+                  src={
+                    user.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`
+                  }
                   alt={user.name}
                   className="w-10 h-10 rounded-full"
                 />
@@ -809,7 +915,10 @@ const ProjectDetailModal = ({
             {(project.showcase?.comments || []).map((comment, index) => (
               <div key={index} className="flex space-x-3">
                 <img
-                  src={comment.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || 'User')}`}
+                  src={
+                    comment.user?.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.name || "User")}`
+                  }
                   alt={comment.user?.name}
                   className="w-8 h-8 rounded-full"
                 />
@@ -830,8 +939,9 @@ const ProjectDetailModal = ({
                 </div>
               </div>
             ))}
-            
-            {(!project.showcase?.comments || project.showcase.comments.length === 0) && (
+
+            {(!project.showcase?.comments ||
+              project.showcase.comments.length === 0) && (
               <div className="text-center py-8 text-gray-500 dark:text-slate-400">
                 <p>No comments yet. Be the first to comment!</p>
               </div>
@@ -844,11 +954,3 @@ const ProjectDetailModal = ({
 };
 
 export default ShowcasePage;
-
-
-
-
-
-
-
-

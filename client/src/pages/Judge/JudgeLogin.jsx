@@ -65,7 +65,7 @@ const JudgeLogin = () => {
 
   return (
     <div className="min-h-screen gradient-purple-blue flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-4 -left-4 w-72 h-72 bg-white/10 rounded-full blur-3xl"

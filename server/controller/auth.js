@@ -3,14 +3,12 @@ import crypto from "crypto";
 import User from "../models/User.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
-
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,
 } from "../mailtrap/emails.js";
-
 
 // SIGNUP
 export const signup = async (req, res) => {
@@ -30,15 +28,16 @@ export const signup = async (req, res) => {
         .json({ success: false, message: "User already exists" });
     }
 
+  
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
+      100000 + Math.random() * 900000,
     ).toString();
 
     saveTempRegistration(email, {
       email,
-      password: hashedPassword,
+      password: hashedPassword, 
       name,
       verificationToken,
     });
@@ -59,13 +58,11 @@ export const signup = async (req, res) => {
   }
 };
 
-
 // VERIFY EMAIL
 export const verifyEmail = async (req, res) => {
   const { code } = req.body;
 
   try {
-
     const tempData = getTempRegistration(code);
 
     if (!tempData) {
@@ -147,7 +144,8 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid Credentials" });
     }
 
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
+   
+    const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
       return res
@@ -179,7 +177,6 @@ export const logout = async (req, res) => {
   res.status(200).json({ success: true, message: "Logout successful" });
 };
 
-
 // FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -201,7 +198,7 @@ export const forgotPassword = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpireAt = Date.now() + 60 * 60 * 1000; 
+    const resetTokenExpireAt = Date.now() + 60 * 60 * 1000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = resetTokenExpireAt;
@@ -244,10 +241,8 @@ export const resetPassword = async (req, res) => {
         message: "Invalid or expired reset token",
       });
     }
-
-    const hashedPassword = await bcryptjs.hash(password, 10);
-
-    user.password = hashedPassword;
+ 
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await user.save();
@@ -263,13 +258,10 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-// CHECK AUTH 
+// CHECK AUTH
 export const checkauth = async (req, res) => {
   try {
-    // Get token from cookie
     const token = req.cookies?.token;
-
-    // If no token, return not authenticated (200 status, not 401)
     if (!token) {
       return res.status(200).json({
         success: true,
@@ -284,7 +276,6 @@ export const checkauth = async (req, res) => {
     try {
       decoded = jwt.default.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      // Invalid token - return not authenticated
       return res.status(200).json({
         success: true,
         authenticated: false,
@@ -315,7 +306,6 @@ export const checkauth = async (req, res) => {
   }
 };
 
-
 // UPDATE PROFILE
 export const updateProfile = async (req, res) => {
   try {
@@ -329,7 +319,7 @@ export const updateProfile = async (req, res) => {
         skills: skills || undefined,
         avatar: avatar || undefined,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password");
 
     res.json({
@@ -345,7 +335,6 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
-
 
 export const register = signup;
 export const getProfile = checkauth;

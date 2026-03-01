@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import api from '../utils/api';
-import Button from '../components/common/Button';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useEffect, useState } from "react";
+import Button from "../components/common/Button";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { useAppStore } from "../store/useAppStore";
 
 const ProfilePage = () => {
   const { user, refreshUser, updateProfile } = useAppStore();
-  const [form, setForm] = useState({ name: '', bio: '', skills: '', avatar: '' });
+  const [form, setForm] = useState({
+    name: "",
+    bio: "",
+    skills: "",
+    avatar: "",
+  });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -26,10 +30,10 @@ const ProfilePage = () => {
   useEffect(() => {
     if (user) {
       setForm({
-        name: user.name || '',
-        bio: user.bio || '',
-        skills: (user.skills || []).join(', '),
-        avatar: user.avatar || ''
+        name: user.name || "",
+        bio: user.bio || "",
+        skills: (user.skills || []).join(", "),
+        avatar: user.avatar || "",
       });
     }
   }, [user]);
@@ -48,9 +52,9 @@ const ProfilePage = () => {
         bio: form.bio,
         avatar: form.avatar,
         skills: form.skills
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
-          .filter(Boolean)
+          .filter(Boolean),
       };
       await updateProfile(payload);
       await refreshUser();
@@ -62,7 +66,7 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <LoadingSpinner size="large" variant="orb" text="Loading your profile..." />
+        <LoadingSpinner size="lg" text="Loading your profile..." />
       </div>
     );
   }
@@ -76,7 +80,9 @@ const ProfilePage = () => {
         <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full name
+              </label>
               <input
                 className="input-glass"
                 name="name"
@@ -86,7 +92,9 @@ const ProfilePage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Avatar URL</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Avatar URL
+              </label>
               <input
                 className="input-glass"
                 name="avatar"
@@ -96,7 +104,9 @@ const ProfilePage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Skills (comma separated)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Skills (comma separated)
+              </label>
               <input
                 className="input-glass"
                 name="skills"
@@ -108,7 +118,9 @@ const ProfilePage = () => {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bio
+              </label>
               <textarea
                 className="input-glass h-40"
                 name="bio"
@@ -118,7 +130,9 @@ const ProfilePage = () => {
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" loading={saving}>Save changes</Button>
+              <Button type="submit" loading={saving}>
+                Save changes
+              </Button>
             </div>
           </div>
         </form>
@@ -129,11 +143,18 @@ const ProfilePage = () => {
         {user.teams && user.teams.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {user.teams.map((t, index) => (
-              <span key={t._id || `team-${index}-${t.name || 'unknown'}`} className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">{t.name}</span>
+              <span
+                key={t._id || `team-${index}-${t.name || "unknown"}`}
+                className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700"
+              >
+                {t.name}
+              </span>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600">You are not a member of any teams yet.</p>
+          <p className="text-gray-600">
+            You are not a member of any teams yet.
+          </p>
         )}
       </div>
     </div>

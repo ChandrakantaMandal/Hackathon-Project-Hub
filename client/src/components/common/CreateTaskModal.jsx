@@ -31,8 +31,6 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onTaskCreated })
           delete taskData[key];
         }
       });
-
-      console.log('Sending task data:', taskData); // Debug log
       
       const response = await api.post('/tasks', taskData);
       
@@ -43,8 +41,6 @@ const CreateTaskModal = ({ isOpen, onClose, projectId, members, onTaskCreated })
         toast.success('Task created successfully! ✨');
       }
     } catch (error) {
-      console.error('Task creation error:', error);
-      console.error('Error response:', error.response?.data); // Debug log
       toast.error(error.response?.data?.message || 'Failed to create task ❌');
     }
   };
