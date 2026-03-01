@@ -37,6 +37,14 @@ const JudgeDashboard = () => {
 
   const judge = JSON.parse(localStorage.getItem("judge") || "{}");
 
+  // Redirect if no judge is logged in
+  useEffect(() => {
+    if (!judge || !judge._id) {
+      toast.error("Please log in as a judge");
+      navigate("/judge/login");
+    }
+  }, [judge, navigate]);
+
   const badges = [
     {
       type: "first-riser",
@@ -181,7 +189,7 @@ const JudgeDashboard = () => {
   };
 
   const getJudgeScore = (submission) => {
-    return submission.scores?.find((score) => score.judge._id === judge._id);
+    return submission.scores?.find((score) => score.judge?._id === judge._id);
   };
 
   if (loading) {

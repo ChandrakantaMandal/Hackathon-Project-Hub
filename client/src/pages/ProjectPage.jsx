@@ -6,7 +6,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import Button from "../components/common/Button";
 import ConfirmationModal from "../components/common/ConfirmationModal";
 import { toast } from "react-hot-toast";
-import CreateTaskModal from "../components/tasks/CreateTaskModal";
+import CreateTaskModal from "../components/common/CreateTaskModal ";
 import SubmissionModal from "../components/projects/SubmissionModal";
 
 const ProjectPage = () => {

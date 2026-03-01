@@ -37,7 +37,7 @@ const HealthCheck = () => {
           : "bg-red-100 text-red-800 border border-red-200"
       }`}
     >
-      {status === "healthy" ? "🟢 Server Online" : `🔴 Server Error: ${error}`}
+      {status === "healthy" ? "🟢Online" : `🔴 Error: ${error}`}
     </div>
   );
 };
